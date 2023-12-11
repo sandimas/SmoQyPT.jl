@@ -27,3 +27,4 @@ Manifest.toml
 
 run.sh
 local/
+output_tmp/
