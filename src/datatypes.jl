@@ -20,6 +20,7 @@ mutable struct ParallelTemperingConfig
     Nt::Int
     nt::Int
     reg::Number
+    avg_N
     U_table
     α_table
 

@@ -13,7 +13,10 @@ import SmoQyDQMC.MuTuner           as mt
 include("datatypes.jl")
 include("main.jl")
 include("update.jl")
+include("setup.jl")
+include("utilities.jl")
 
+include("temper.jl")
 export run_PQT
 
 
