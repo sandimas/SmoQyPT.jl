@@ -25,6 +25,10 @@ mutable struct ParallelTemperingConfig
 
     model::String
     tempering_param::String
+
+    hubbard::Bool
+    holstein:: Bool
+    ssh::Bool
 end
 
 allowed_tempering_params = [
