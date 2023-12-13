@@ -246,23 +246,29 @@ function run_PQT(model_geometry,tight_binding_model,phonon_modes,
                 electron_phonon_parameters, electron_phonon_parameters_tmp,
                 config
             )
-    
             for n ∈ 1:N_burnin_after_swap
-                (logdetG, sgndetG, δG, δθ) = do_updates_sym!(
-                    G,logdetG, sgndetG,δG,δθ,
-                    additional_info,
-                    tight_binding_parameters,
-                    electron_phonon_parameters,
-                    fermion_path_integral,
-                    fermion_greens_calculator,
-                    fermion_greens_calculator_alt,
-                    B, rng, id_tuple, hmc_updater,
-                    δG_max,  chemical_potential_tuner,
-                    config 
-                )
+                try
+                    (logdetG, sgndetG, δG, δθ) = do_updates_sym!(
+                        G,logdetG, sgndetG,δG,δθ,
+                        additional_info,
+                        tight_binding_parameters,
+                        electron_phonon_parameters,
+                        fermion_path_integral,
+                        fermion_greens_calculator,
+                        fermion_greens_calculator_alt,
+                        B, rng, id_tuple, hmc_updater,
+                        δG_max,  chemical_potential_tuner,
+                        config 
+                    )
+                catch
+                    save("crash.jld2",Dict(
+                        "G" => G,
+                        "B" => B,
 
+                     ))
+                end
             end # n in 1:N_burnin_after_swap
-
+        
         end # if do_swaps
     end # for bin in 1:N_bins
 

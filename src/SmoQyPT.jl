@@ -3,6 +3,7 @@ module SmoQyPT
 using Random
 using Printf
 using MPI
+using FileIO
 
 using SmoQyDQMC
 import SmoQyDQMC.LatticeUtilities  as lu
