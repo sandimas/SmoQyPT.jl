@@ -266,6 +266,8 @@ function run_PQT(model_geometry,tight_binding_model,phonon_modes,
                         "B" => B,
 
                      ))
+                     println(config.mpi_rank, " failed")
+                     exit()
                 end
             end # n in 1:N_burnin_after_swap
         
