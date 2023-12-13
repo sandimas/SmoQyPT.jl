@@ -1,6 +1,5 @@
 function temper_sym!(
         G, B, additional_info, fermion_greens_calculator,
-
         logdetG, sgndetG, 
         n_tier, shift_val, do_shift,
         fermion_path_integral, fermion_path_integral_tmp,
@@ -9,8 +8,10 @@ function temper_sym!(
     )
 
     for tier ∈ 0:n_tier-2
-        p0("tier ",tier)
+        
         MPI.Barrier(config.mpi_comm)    
+p0("tier ",tier)
+
         weights_r = zeros(Float64,4)
         if tier == config.mpi_rank_tier
             # sender
@@ -20,6 +21,7 @@ function temper_sym!(
             
             G_s = similar(G)
             B_s = similar(B)
+            copyto!(electron_phonon_parameters_tmp.x, electron_phonon_parameters.x)
             initialize!(fermion_path_integral_tmp, electron_phonon_parameters_tmp)
             # 1 - swap X fields
             MPI.Send(electron_phonon_parameters.x,config.mpi_comm,dest=receiver)
@@ -35,8 +37,8 @@ function temper_sym!(
             # 3 - receive weights
             MPI.Recv!(weights_r,config.mpi_comm)
             # 4 - calculate update 
-            # p0(Sb_new, " ",logdetG_s, " ",weights_r[4], " ",weights_r[3] )
-            # p0(Sb_old, " ",logdetG, " ",weights_r[2], " ",weights_r[1] )
+# p0(Sb_new, " ",logdetG_s, " ",weights_r[4], " ",weights_r[3] )
+# p0(Sb_old, " ",logdetG, " ",weights_r[2], " ",weights_r[1] )
             
             lnP = - Sb_new - 2.0* logdetG_s - weights_r[4] - 2.0 * weights_r[3]
             lnP += Sb_old + 2.0 * logdetG + weights_r[2] + 2.0 * weights_r[1]
@@ -64,6 +66,7 @@ function temper_sym!(
             
             G_r = similar(G)
             B_r = similar(B)
+            copyto!(electron_phonon_parameters_tmp.x, electron_phonon_parameters.x)
             initialize!(fermion_path_integral_tmp, electron_phonon_parameters_tmp)
             # 1 - swap X fields
             MPI.Recv!(electron_phonon_parameters_tmp.x,config.mpi_comm)
@@ -91,14 +94,14 @@ function temper_sym!(
                 copyto!(G,G_r)
                 copyto!(electron_phonon_parameters.x,electron_phonon_parameters_tmp.x)
                 copyto!(fermion_path_integral.V,fermion_path_integral_tmp.V)
-                fermion_greens_calculator = dqmcf.FermionGreensCalculator( fermion_greens_calculator_tmp)
+                copyto!(fermion_greens_calculator , fermion_greens_calculator_tmp)
                 copyto!(B,B_r)
             
             end
 
         end
         MPI.Barrier(config.mpi_comm)
-    end
+    end # tier loop
     shift_val = (do_shift) ? (shift_val + 1) % config.n_walker_per_tier : 0
 
 

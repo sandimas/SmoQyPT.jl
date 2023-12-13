@@ -8,7 +8,7 @@ function do_updates_sym!(
         fermion_greens_calculator_alt,
         B, rng, id_tuple, hmc_updater,
         δG_max,  chemical_potential_tuner,
-        config 
+        config; sweep=0
     )
     if config.holstein
 
@@ -36,6 +36,7 @@ function do_updates_sym!(
         # TODO
     end
     if config.holstein 
+        try
         (accepted, logdetG, sgndetG, δG, δθ) = hmc_update!(
             G, logdetG, sgndetG, electron_phonon_parameters, hmc_updater,
             fermion_path_integral = fermion_path_integral,
@@ -43,6 +44,16 @@ function do_updates_sym!(
             fermion_greens_calculator_alt = fermion_greens_calculator_alt,
             B = B, δG_max = δG_max, δG = δG, δθ = δθ, rng = rng, initialize_force = true
         )
+        catch
+            println(config.mpi_rank, " failed ",sweep)
+        
+            save("crash.jld2",Dict(
+                "G" => G,
+                "B" => B,
+
+             ))
+             exit()
+        end
 
         # Record whether the HMC update was accepted or rejected.
         additional_info["hmc_acceptance_rate"] += accepted
