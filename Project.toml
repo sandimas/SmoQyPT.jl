@@ -2,3 +2,9 @@ name = "SmoQyPT"
 uuid = "69d0943b-a0d9-4cf3-a65b-2b70711bd590"
 authors = ["sandimas <james.neuhaus@gmail.com>"]
 version = "0.1.0"
+
+[deps]
+MPI = "da04e1cc-30fd-572f-bb4f-1f8673147195"
+Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+SmoQyDQMC = "00e12d65-277b-447e-9c1d-a17422dd36f5"
