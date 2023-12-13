@@ -158,7 +158,7 @@ function run_PQT(model_geometry,tight_binding_model,phonon_modes,
         G = G, Nt = Nt, Δt = Δt, nt = nt, reg = reg
     )
     # shut_it_down(simulation_info,"\n\n\n",model_geometry)
-    
+    p0("Beginning warms")
     # warms
     for n in 1:N_burnin
         if config.holstein
@@ -224,7 +224,7 @@ function run_PQT(model_geometry,tight_binding_model,phonon_modes,
     end
     coup_tuple = (coup_vec...,)
     shift_val = 0
-
+    p0("Beginning sweeps")
     # Iterate over the number of bin, i.e. the number of time measurements will be dumped to file.
     for bin in 1:N_bins
 
@@ -299,9 +299,9 @@ function run_PQT(model_geometry,tight_binding_model,phonon_modes,
             bin_size = bin_size,
             Δτ = Δτ
         )
-        
+        p0("Finished Bin ", bin, " of ", N_bins)
         #do_tier_swap_updates
-        if do_swaps
+        if do_swaps && bin!=N_bins
             for tier ∈ 0:n_tier-2
                 p0("tier ",tier)
                 MPI.Barrier(mpi_comm)    
