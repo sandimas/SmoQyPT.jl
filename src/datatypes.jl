@@ -30,6 +30,7 @@ mutable struct ParallelTemperingConfig
     hubbard::Bool
     holstein:: Bool
     ssh::Bool
+    
 end
 
 allowed_tempering_params = [

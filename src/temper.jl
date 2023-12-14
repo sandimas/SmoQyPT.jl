@@ -33,7 +33,7 @@ p0("tier ",tier)
             B_s = initialize_propagators(fermion_path_integral_tmp, symmetric=config.symmetric, checkerboard=config.checkerboard)
             
             fermion_greens_calculator_tmp = dqmcf.FermionGreensCalculator(B_s, config.β, config.Δτ, config.n_stab)
-            logdetG_s, sgndetG_s = dqmcf.calculate_equaltime_greens!(G_s, fermion_greens_calculator_tmp)
+            logdetG_s, sgndetG_s = dqmcf.calculate_equaltime_greens!(G_s, fermion_greens_calculator_tmp,B_s)
             # 3 - receive weights
             MPI.Recv!(weights_r,config.mpi_comm)
             # 4 - calculate update 
@@ -78,7 +78,7 @@ p0("tier ",tier)
             weights_r[4] = SmoQyDQMC.bosonic_action(electron_phonon_parameters_tmp)
             B_r = initialize_propagators(fermion_path_integral_tmp, symmetric=config.symmetric, checkerboard=config.checkerboard)
             fermion_greens_calculator_tmp = dqmcf.FermionGreensCalculator(B_r, config.β, config.Δτ, config.n_stab)
-            logdetG_r, sgndetG_r = dqmcf.calculate_equaltime_greens!(G_r, fermion_greens_calculator_tmp)
+            logdetG_r, sgndetG_r = dqmcf.calculate_equaltime_greens!(G_r, fermion_greens_calculator_tmp,B_r)
             weights_r[3] = logdetG_r
 
             # 3 - send weights from child to parent
