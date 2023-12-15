@@ -42,8 +42,8 @@ function temper_sym!(
             # 4 - calculate update 
 
             
-p(0,Sb′, " ",logdetG′, " ",weights_r[4], " ",weights_r[3] )
-p(0,Sb, " ",logdetG, " ",weights_r[2], " ",weights_r[1] )
+# p(0,Sb′, " ",logdetG′, " ",weights_r[4], " ",weights_r[3] )
+# p(0,Sb, " ",logdetG, " ",weights_r[2], " ",weights_r[1] )
             
             lnP = - Sb′ - 2.0* logdetG′ - weights_r[4] - 2.0 * weights_r[3]
             lnP += Sb + 2.0 * logdetG + weights_r[2] + 2.0 * weights_r[1]
