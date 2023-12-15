@@ -37,19 +37,21 @@ function do_updates_sym!(
     end
     if config.holstein 
         try
-        (accepted, logdetG, sgndetG, δG, δθ) = hmc_update!(
-            G, logdetG, sgndetG, electron_phonon_parameters, hmc_updater,
-            fermion_path_integral = fermion_path_integral,
-            fermion_greens_calculator = fermion_greens_calculator,
-            fermion_greens_calculator_alt = fermion_greens_calculator_alt,
-            B = B, δG_max = δG_max, δG = δG, δθ = δθ, rng = rng, initialize_force = true
-        )
+            logdetG_old = logdetG
+            (accepted, logdetG, sgndetG, δG, δθ) = hmc_update!(
+                G, logdetG, sgndetG, electron_phonon_parameters, hmc_updater,
+                fermion_path_integral = fermion_path_integral,
+                fermion_greens_calculator = fermion_greens_calculator,
+                fermion_greens_calculator_alt = fermion_greens_calculator_alt,
+                B = B, δG_max = δG_max, δG = δG, δθ = δθ, rng = rng, initialize_force = true
+            )
         catch
-            println(config.mpi_rank, " failed ",sweep)
+            println("rank ",config.mpi_rank, ", sweep ",sweep, ", logdetG ",logdetG_old)
         
             save("crash.jld2",Dict(
                 "G" => G,
                 "B" => B,
+                "logdetG" => logdetG_old
 
              ))
              exit()

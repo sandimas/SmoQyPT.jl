@@ -42,7 +42,13 @@ p0("tier ",tier)
             
             lnP = - Sb_new - 2.0* logdetG_s - weights_r[4] - 2.0 * weights_r[3]
             lnP += Sb_old + 2.0 * logdetG + weights_r[2] + 2.0 * weights_r[1]
-            P_s = [lnP,log(rand(config.rng,Float64))]
+            if isfinite(lnP)
+                P_s = [lnP,log(rand(config.rng,Float64))]
+            else
+                P_s = [0.0,1.0]
+                println("rank ",config.mpi_rank, ",  lnP ",lnP)
+        
+            end
             # 5 send and process update
             MPI.Isend(P_s,config.mpi_comm,dest=receiver)
             if P_s[1] > P_s[2]
@@ -103,8 +109,6 @@ p0("tier ",tier)
         MPI.Barrier(config.mpi_comm)
     end # tier loop
     shift_val = (do_shift) ? (shift_val + 1) % config.n_walker_per_tier : 0
-
-
 
 
     return (logdetG, sgndetG, shift_val)

@@ -40,3 +40,4 @@ function get_N_tier(tempering_param,α_table,U_table,MPI_n_ranks)
     (MPI_n_ranks % N_tier != 0) && shut_it_down("Number of MPI ranks must be multiple of number of tempering parameters")
     return N_tier
 end
+
