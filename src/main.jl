@@ -259,7 +259,7 @@ function run_PQT(model_geometry,tight_binding_model,phonon_modes,
             end # n in 1:N_burnin_after_swap
         
         end # if do_swaps
-        p0("NaN 0: ",additional_info[NaN])
+        p0("NaN 0: ",additional_info["NaN"])
     end # for bin in 1:N_bins
 
     save_simulation_info(simulation_info,additional_info)
