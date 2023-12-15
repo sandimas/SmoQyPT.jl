@@ -8,10 +8,11 @@ function do_updates_sym!(
         fermion_greens_calculator_alt,
         B, rng, id_tuple, hmc_updater,
         δG_max,  chemical_potential_tuner,
+        use_mu_tuner,
         config; sweep=0
     )
     if config.holstein
-
+        
         (accepted, logdetG, sgndetG) = reflection_update!(
             G, logdetG, sgndetG, electron_phonon_parameters,
             fermion_path_integral = fermion_path_integral,
@@ -37,7 +38,6 @@ function do_updates_sym!(
     end
     if config.holstein 
         try
-            logdetG_old = logdetG
             (accepted, logdetG, sgndetG, δG, δθ) = hmc_update!(
                 G, logdetG, sgndetG, electron_phonon_parameters, hmc_updater,
                 fermion_path_integral = fermion_path_integral,
@@ -45,6 +45,7 @@ function do_updates_sym!(
                 fermion_greens_calculator_alt = fermion_greens_calculator_alt,
                 B = B, δG_max = δG_max, δG = δG, δθ = δθ, rng = rng, initialize_force = true
             )
+            
         catch
             println("rank ",config.mpi_rank, ", sweep ",sweep, ", logdetG ",logdetG_old)
         
@@ -60,7 +61,8 @@ function do_updates_sym!(
         # Record whether the HMC update was accepted or rejected.
         additional_info["hmc_acceptance_rate"] += accepted
     end
-    if (!isnothing(config.avg_N))
+
+    if (!isnothing(config.avg_N) && use_mu_tuner)
         logdetG, sgndetG = update_chemical_potential!(
             G, logdetG, sgndetG,
             chemical_potential_tuner = chemical_potential_tuner,

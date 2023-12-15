@@ -16,7 +16,7 @@ function temper_sym!(
     for tier ∈ 0:n_tier-2
         
         MPI.Barrier(config.mpi_comm)    
-p0("tier ",tier)
+# p0("tier ",tier)
 
         x_old = copy(epp.x)
 
@@ -42,8 +42,8 @@ p0("tier ",tier)
             # 4 - calculate update 
 
             
-p(3,Sb′, " ",logdetG′, " ",weights_r[4], " ",weights_r[3] )
-p(3,Sb, " ",logdetG, " ",weights_r[2], " ",weights_r[1] )
+p(0,Sb′, " ",logdetG′, " ",weights_r[4], " ",weights_r[3] )
+p(0,Sb, " ",logdetG, " ",weights_r[2], " ",weights_r[1] )
             
             lnP = - Sb′ - 2.0* logdetG′ - weights_r[4] - 2.0 * weights_r[3]
             lnP += Sb + 2.0 * logdetG + weights_r[2] + 2.0 * weights_r[1]

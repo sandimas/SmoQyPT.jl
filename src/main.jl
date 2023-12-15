@@ -167,6 +167,7 @@ function run_PQT(model_geometry,tight_binding_model,phonon_modes,
             fermion_greens_calculator_alt,
             B, rng, id_tuple, hmc_updater,
             δG_max,  chemical_potential_tuner,
+            true,
             config 
         )
 
@@ -201,6 +202,7 @@ function run_PQT(model_geometry,tight_binding_model,phonon_modes,
                 fermion_greens_calculator_alt,
                 B, rng, id_tuple, hmc_updater,
                 δG_max, chemical_potential_tuner,
+                false,
                 config 
             )
 
@@ -229,6 +231,7 @@ function run_PQT(model_geometry,tight_binding_model,phonon_modes,
         )
         p0("Finished Bin ", bin, " of ", N_bins)
         #do_tier_swap_updates
+        
         if  do_swaps && bin!=N_bins
 
             (logdetG, sgndetG, shift_val) = temper_sym!(
@@ -240,7 +243,6 @@ function run_PQT(model_geometry,tight_binding_model,phonon_modes,
                 electron_phonon_parameters,
                 config
             )
-
             for n ∈ 1:N_burnin_after_swap
                 
                 (logdetG, sgndetG, δG, δθ) = do_updates_sym!(
@@ -253,13 +255,14 @@ function run_PQT(model_geometry,tight_binding_model,phonon_modes,
                         fermion_greens_calculator_alt,
                         B, rng, id_tuple, hmc_updater,
                         δG_max,  chemical_potential_tuner,
+                        false,
                         config, sweep=n
                 )
                 
             end # n in 1:N_burnin_after_swap
         
         end # if do_swaps
-        p0("NaN 0: ",additional_info["NaN"])
+        
     end # for bin in 1:N_bins
 
     save_simulation_info(simulation_info,additional_info)
