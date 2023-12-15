@@ -1,9 +1,14 @@
 
-function p0(text...)
-    if MPI.Comm_rank(MPI.COMM_WORLD) == 0
+function p(i,text...)
+    if MPI.Comm_rank(MPI.COMM_WORLD) == i
         println(text...)
     end
 end
+
+function p0(text...)
+    p(0,text...)
+end
+
 
 function shut_it_down(text...)
     p0("Error: ",text...)

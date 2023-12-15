@@ -72,13 +72,6 @@ function run_PQT(model_geometry,tight_binding_model,phonon_modes,
             model_geometry = model_geometry,
             rng = config.rng
         )
-        electron_phonon_parameters_tmp = ElectronPhononParameters(
-            β = config.β, Δτ = config.Δτ,
-            electron_phonon_model = electron_phonon_model,
-            tight_binding_parameters = tight_binding_parameters,
-            model_geometry = model_geometry,
-            rng = config.rng
-        )
     end
     # interactions = []
     # (model_includes(config,"Holstein")||model_includes(config,"SSH")) && push!(interactions,electron_phonon_model)
@@ -120,7 +113,7 @@ function run_PQT(model_geometry,tight_binding_model,phonon_modes,
         "Nt" => Nt,
         "nt" => nt,
         "reg" => reg,
-
+        "NaN" => 0.0
     )
 
     measurement_container = setup_measurements(config,model_geometry,tight_binding_model,electron_phonon_model,measurement_list)
@@ -132,7 +125,7 @@ function run_PQT(model_geometry,tight_binding_model,phonon_modes,
 
     # setup DQMC simulation
     fermion_path_integral = FermionPathIntegral(tight_binding_parameters = tight_binding_parameters, β = β, Δτ = Δτ)
-    fermion_path_integral_tmp = FermionPathIntegral(tight_binding_parameters = tight_binding_parameters, β = β, Δτ = Δτ)
+    
     initialize!(fermion_path_integral, electron_phonon_parameters)
     B = initialize_propagators(fermion_path_integral, symmetric=symmetric, checkerboard=checkerboard)
     fermion_greens_calculator = dqmcf.FermionGreensCalculator(B, β, Δτ, n_stab)
@@ -239,11 +232,12 @@ function run_PQT(model_geometry,tight_binding_model,phonon_modes,
         if  do_swaps && bin!=N_bins
 
             (logdetG, sgndetG, shift_val) = temper_sym!(
-                G, B, additional_info,fermion_greens_calculator, 
+                G, B, additional_info,
+                fermion_greens_calculator, fermion_greens_calculator_alt,
                 logdetG, sgndetG, 
                 n_tier, shift_val, do_shift,
-                fermion_path_integral, fermion_path_integral_tmp,
-                electron_phonon_parameters, electron_phonon_parameters_tmp,
+                fermion_path_integral,
+                electron_phonon_parameters,
                 config
             )
 
@@ -265,6 +259,7 @@ function run_PQT(model_geometry,tight_binding_model,phonon_modes,
             end # n in 1:N_burnin_after_swap
         
         end # if do_swaps
+        p0("NaN 0: ",additional_info[NaN])
     end # for bin in 1:N_bins
 
     save_simulation_info(simulation_info,additional_info)
