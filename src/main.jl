@@ -236,8 +236,8 @@ function run_PQT(model_geometry,tight_binding_model,phonon_modes,
         )
         p0("Finished Bin ", bin, " of ", N_bins)
         #do_tier_swap_updates
-        if bin!=N_bins # do_swaps && bin!=N_bins
-if do_swaps
+        if  do_swaps && bin!=N_bins
+
             (logdetG, sgndetG, shift_val) = temper_sym!(
                 G, B, additional_info,fermion_greens_calculator, 
                 logdetG, sgndetG, 
@@ -246,7 +246,7 @@ if do_swaps
                 electron_phonon_parameters, electron_phonon_parameters_tmp,
                 config
             )
-end
+
             for n ∈ 1:N_burnin_after_swap
                 
                 (logdetG, sgndetG, δG, δθ) = do_updates_sym!(
