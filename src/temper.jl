@@ -104,11 +104,11 @@ println(config.mpi_rank, " to ",receiver, " upd ")
             
             update!(fpi, epp,  x′,)
             copyto!(epp.x,x′)
+            
             weights_r[4] = SmoQyDQMC.bosonic_action(epp)
-            # MPI.Barrier(config.mpi_comm)
-            # println(weights_r[2]," x ",weights_r[4])
-
+            
             calculate_propagators!(B,fpi, calculate_exp_K = config.ssh, calculate_exp_V = config.holstein)
+            
             try 
                 logdetG′, sgndetG′ = dqmcf.calculate_equaltime_greens!(G′, fermion_greens_calculator_alt,B)
             catch
@@ -125,7 +125,7 @@ println(config.mpi_rank, " to ",receiver, " upd ")
             MPI.Recv!(P,config.mpi_comm)
             if P[1] > P[2]
                 additional_info["tempering_acceptance_rate"] += 1.0
-                logdetG, sgndetG = dqmcf.calculate_equaltime_greens!(G, fermion_greens_calculator,B)
+                logdetG_out, sgndetG_out = dqmcf.calculate_equaltime_greens!(G, fermion_greens_calculator,B)
             else
                 update!(fpi, epp, x_old)
                 copyto!(epp.x,x_old)
