@@ -5,6 +5,8 @@ using Printf
 using MPI
 using FileIO
 
+# include("../local/SmoQyDQMC.jl/src/SmoQyDQMC.jl")
+
 using SmoQyDQMC
 import SmoQyDQMC.LatticeUtilities  as lu
 import SmoQyDQMC.JDQMCFramework    as dqmcf

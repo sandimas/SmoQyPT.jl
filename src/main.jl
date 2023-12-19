@@ -7,13 +7,13 @@ function run_PQT(model_geometry,tight_binding_model,phonon_modes,
                 avg_N=nothing,μ=0.0,do_swaps=true,
     ) 
 
-
+    
     # MPI inits
     MPI.Init()
     mpi_comm = MPI.COMM_WORLD
     mpi_rank = MPI.Comm_rank(mpi_comm)
     mpi_n_rank = MPI.Comm_size(mpi_comm)
-
+    
     # Catch bad inputs
     (N_updates % N_bins > 0 ) && shut_it_down("N_updates must be a multiple of N_bins")
     (model ∈ allowed_models) || shut_it_down(model, " is not a member of allowed \'model\'\n","Allowed values are ",allowed_models)
@@ -53,7 +53,7 @@ function run_PQT(model_geometry,tight_binding_model,phonon_modes,
     phonon_ids = nothing
     # setup_phonons
     if (config.model != "Hubbard") 
-        electron_phonon_model, phonon_ids, id_tuple = setup_phonons!(model_geometry,config,tight_binding_model,phonon_modes)
+        electron_phonon_model, phonon_ids, id_tuple, id_pair_tuple = setup_phonons!(model_geometry,config,tight_binding_model,phonon_modes)
     end
     MPI.Barrier(mpi_comm)
 
@@ -150,13 +150,14 @@ function run_PQT(model_geometry,tight_binding_model,phonon_modes,
     end
 
     hmc_updater = HMCUpdater(
-    electron_phonon_parameters = electron_phonon_parameters,
-    G = G, Nt = Nt, Δt = Δt, nt = nt, reg = reg
+        electron_phonon_parameters = electron_phonon_parameters,
+        G = G, Nt = Nt, Δt = Δt, nt = nt, reg = reg
     )
-    # shut_it_down(simulation_info,"\n\n\n",model_geometry)
+    
     p0("Beginning warms")
     # warms
     for n in 1:N_burnin
+        
         (logdetG, sgndetG, δG, δθ) = do_updates_sym!(
             G,logdetG, sgndetG,δG,δθ,
             additional_info,
@@ -165,12 +166,13 @@ function run_PQT(model_geometry,tight_binding_model,phonon_modes,
             fermion_path_integral,
             fermion_greens_calculator,
             fermion_greens_calculator_alt,
-            B, rng, id_tuple, hmc_updater,
+            B, rng, id_tuple, id_pair_tuple,
+            hmc_updater,
             δG_max,  chemical_potential_tuner,
             true,
             config 
         )
-
+        
     end # n in 1:N_burnin
 
 
@@ -186,6 +188,8 @@ function run_PQT(model_geometry,tight_binding_model,phonon_modes,
     end
     coup_tuple = (coup_vec...,)
     shift_val = 0
+
+    MPI.Barrier(config.mpi_comm)
     p0("Beginning sweeps")
     # Iterate over the number of bin, i.e. the number of time measurements will be dumped to file.
     for bin in 1:N_bins
@@ -200,7 +204,7 @@ function run_PQT(model_geometry,tight_binding_model,phonon_modes,
                 fermion_path_integral,
                 fermion_greens_calculator,
                 fermion_greens_calculator_alt,
-                B, rng, id_tuple, hmc_updater,
+                B, rng, id_tuple, id_pair_tuple, hmc_updater,
                 δG_max, chemical_potential_tuner,
                 false,
                 config 
@@ -233,7 +237,7 @@ function run_PQT(model_geometry,tight_binding_model,phonon_modes,
         #do_tier_swap_updates
         
         if  do_swaps && bin!=N_bins
-
+            p0(δG,"\t")
             (logdetG, sgndetG, shift_val) = temper_sym!(
                 G, B, additional_info,
                 fermion_greens_calculator, fermion_greens_calculator_alt,
@@ -243,6 +247,7 @@ function run_PQT(model_geometry,tight_binding_model,phonon_modes,
                 electron_phonon_parameters,
                 config
             )
+            
             for n ∈ 1:N_burnin_after_swap
                 
                 (logdetG, sgndetG, δG, δθ) = do_updates_sym!(
@@ -253,12 +258,12 @@ function run_PQT(model_geometry,tight_binding_model,phonon_modes,
                         fermion_path_integral,
                         fermion_greens_calculator,
                         fermion_greens_calculator_alt,
-                        B, rng, id_tuple, hmc_updater,
+                        B, rng, id_tuple,id_pair_tuple, hmc_updater,
                         δG_max,  chemical_potential_tuner,
                         false,
                         config, sweep=n
                 )
-                
+                 
             end # n in 1:N_burnin_after_swap
         
         end # if do_swaps

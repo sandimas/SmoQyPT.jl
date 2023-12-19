@@ -41,7 +41,7 @@ end
 
 
 function setup_phonons!(model_geometry,config,tight_binding_model,phonon_modes)
-
+    
     electron_phonon_model = ElectronPhononModel(
         model_geometry = model_geometry,
         tight_binding_model = tight_binding_model
@@ -61,6 +61,7 @@ function setup_phonons!(model_geometry,config,tight_binding_model,phonon_modes)
         ))
     end
     id_array = []
+    id_pair_array = []
     for bond ∈ 1:n_bonds
         
         bond_tuple = config.α_table[α_tier+1,bond]
@@ -78,6 +79,8 @@ function setup_phonons!(model_geometry,config,tight_binding_model,phonon_modes)
                 holstein_coupling = phonon_coupling,
                 model_geometry = model_geometry
             )
+            push!(id_pair_array,(phonon_ids[bond_tuple[2]],phonon_ids[bond_tuple[2]]))
+            
         elseif config.ssh
             phonon_coupling = SSHCoupling(
                 model_geometry = model_geometry,
@@ -86,7 +89,7 @@ function setup_phonons!(model_geometry,config,tight_binding_model,phonon_modes)
                 bond = bond_tuple[1],
                 α_mean = bond_tuple[4]
             )
-            push!(id_array,(phonon_ids[bond_tuple[2]],phonon_ids[bond_tuple[3]]))
+            push!(id_pair_array,(phonon_ids[bond_tuple[2]],phonon_ids[bond_tuple[3]]))
             
             phonon_coupling_id = add_ssh_coupling!(
                 electron_phonon_model = electron_phonon_model,
@@ -96,5 +99,5 @@ function setup_phonons!(model_geometry,config,tight_binding_model,phonon_modes)
         end
     end
 
-return electron_phonon_model, phonon_ids, (id_array...,)
+return electron_phonon_model, phonon_ids, (id_array...,), (id_pair_array...,)
 end
