@@ -39,16 +39,10 @@ function temper_sym!(
             
             SmoQyDQMC.update!(fpi, epp, x′, x_old)#, x_old)
             copyto!(epp.x,x′)
-            # println(maximum(x′ .-epp.x))
-            # println(epp.holstein_parameters.α)
-            # println(epp.holstein_parameters.Nholstein)
             
             
             Sb′ = SmoQyDQMC.bosonic_action(epp)
             
-            # println(Sb′," sb ",Sb)
-            # MPI.Barrier(config.mpi_comm)
-            # exit()
             calculate_propagators!(B,fpi, calculate_exp_K = config.ssh, calculate_exp_V = config.holstein)
             try
                 logdetG′, sgndetG′ = dqmcf.calculate_equaltime_greens!(G′, fermion_greens_calculator_alt,B)
@@ -76,7 +70,7 @@ function temper_sym!(
             if P[1] > P[2]
                 additional_info["tempering_acceptance_rate"] += 1.0
                 logdetG_out, sgndetG_out = dqmcf.calculate_equaltime_greens!(G, fermion_greens_calculator,B)
-println(config.mpi_rank, " to ",receiver, " upd ")
+# println(config.mpi_rank, " to ",receiver, " upd ")
                 
             else
                 # p0(config.mpi_rank, " to ",receiver, " no upd ")
